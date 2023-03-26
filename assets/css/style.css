@@ -673,7 +673,7 @@ article.container::before{
     margin-block-start: 28px;
     display: none;
 }
-.fade-in . footer{display: flex}
+.fade-in .footer{display: flex}
 
 .footer .body-3:last-child{gap: 6px;}
 
