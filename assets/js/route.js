@@ -8,7 +8,7 @@
 'use strict';
 
 import {updateWeather, error404} from "./app.js";
-const defaultLocation = "#/weather?lat=51.5073219&lon=-0.1276474"; //London
+const defaultLocation = "#/weather?lat=53.1328798&lon=30.7977554"; //Korma
 
 const currentLocation = function (){
     window.navigator.geolocation.getCurrentPosition(res =>{
