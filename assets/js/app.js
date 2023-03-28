@@ -7,6 +7,7 @@
 
 import {fetchData, url} from "./api.js";
 import * as module from './module.js';
+import {translateToRussian} from "./translate.js";
 
 /**
  * Add event listener on multiple elements
@@ -51,7 +52,7 @@ searchField.addEventListener("input", function (){
 
     if(searchField.value){
         searchTimeout = setTimeout(()=>{
-            fetchData(url.geo(searchField.value), function (locations){
+            fetchData(url.geo(searchField.value), async function (locations) {
                 searchField.classList.remove("searching");
                 searchResult.classList.add("active");
                 searchResult.innerHTML = `
@@ -60,15 +61,15 @@ searchField.addEventListener("input", function (){
 
 
                 let items = [];
-                for (const {name, lat, lon, country, state} of locations){
+                for (const {name, lat, lon, country, state} of locations) {
 
                     const searchItem = document.createElement("li");
                     searchItem.classList.add("view-item");
                     searchItem.innerHTML = `
                         <span class="m-icon">location_on</span>
                         <div>
-                             <p class="item-title">${name}</p>    
-                             <p class="label-2 item-subtitle">${state || ""}, ${country}</p>
+                             <p class="item-title">${await translateToRussian(name)}</p>    
+                             <p class="label-2 item-subtitle">${await translateToRussian(state) || ""}, ${country}</p>
                         </div>
                         <a href="#/weather?lat=${lat}&lon=${lon}" class="item-link has-state" aria-label="${name} weather" data-search-toggler></a>        
                     `;
@@ -78,9 +79,9 @@ searchField.addEventListener("input", function (){
                     items.push(searchItem.querySelector("[data-search-toggler]"));
                 }
 
-                addEventOnElements(items, 'click', function (){
-                   toggleSearch();
-                   searchResult.classList.remove("active");
+                addEventOnElements(items, 'click', function () {
+                    toggleSearch();
+                    searchResult.classList.remove("active");
                 });
             });
         }, searchTimeoutDuration);
@@ -124,7 +125,7 @@ export const updateWeather = function (lat, lon) {
      * CURRENT WEATHER SECTION
      */
 
-    fetchData(url.currentWeather(lat, lon), function (currentWeather){
+    fetchData(url.currentWeather(lat, lon), async function (currentWeather) {
         const {
             weather,
             dt: dateUnix,
@@ -136,16 +137,16 @@ export const updateWeather = function (lat, lon) {
         const [{description, icon}] = weather;
         console.log(weather)
 
-        const  card = document.createElement("div");
+        const card = document.createElement("div");
         card.classList.add("card", "card-lg", "current-weather-card");
         card.innerHTML = `
-            <h2 class="title-2 card-title">Now</h2>
+            <h2 class="title-2 card-title">Сейчас</h2>
             <div class="weapper">
                 <p class="heading">${parseInt(temp)}&deg;<sup>c</sup></p>
                 <img src="./assets/images/weather_icons/${icon}.png"
                      alt="${description}" width="64" height="64" class="weather-icon">
             </div>
-            <p class="body-3">${description}</p>
+            <p class="body-3">${await translateToRussian(description)}</p>
             <ul class="meta-list">
                  <li class="meta-item">
                       <span class="m-icon">calendar_today</span>
@@ -159,15 +160,15 @@ export const updateWeather = function (lat, lon) {
             </ul>
         `;
 
-        fetchData(url.reverseGeo(lat, lon), function ([{name, country}]) {
-            card.querySelector("[data-location]").innerHTML = `${name}, ${country}`;
+        fetchData(url.reverseGeo(lat, lon), async function ([{name, country}]) {
+            card.querySelector("[data-location]").innerHTML = `${await translateToRussian(name)}, ${country}`;
         });
         currentWeatherSection.appendChild(card);
 
         /**
          * TODAY'S HIGHLIGHTS
          */
-        fetchData(url.airPollution(lat, lon), function (airPollution) {
+        fetchData(url.airPollution(lat, lon), async function (airPollution) {
             const [{
                 main: {aqi},
                 components: {no2, o3, so2, pm2_5}
@@ -177,10 +178,10 @@ export const updateWeather = function (lat, lon) {
             card.classList.add("card", "card-lg");
 
             card.innerHTML = `
-                    <h2 class="title-2" id="highlights-label">Today Highlights</h2>
+                    <h2 class="title-2" id="highlights-label">Данные на сегодня</h2>
                         <div class="highlights-list">
                             <div class="card card-sm highlight-card one">
-                                <h3 class="title-3">Air Quality Index</h3>
+                                <h3 class="title-3">Индекс качества воздуха</h3>
                                 <div class="wrapper">
                                     <span class="m-icon">air</span>
                                     <ul class="card-list">
@@ -209,20 +210,20 @@ export const updateWeather = function (lat, lon) {
                             </div>
 
                             <div class="card card-sm highlight-card two">
-                                <h3 class="title-3">Sunrise & Sunset</h3>
+                                <h3 class="title-3">Восход/Закат</h3>
 
                                 <div class="card-list">
                                     <div class="card-item">
                                         <span class="m-icon">clear_day</span>
                                         <div>
-                                            <p class="label-1">Sunrise</p>
+                                            <p class="label-1">Восход солнца</p>
                                             <p class="title-1">${module.getTime(sunriseUnixUTC, timezone)}</p>
                                         </div>
                                     </div>
                                     <div class="card-item">
                                         <span class="m-icon">clear_night</span>
                                         <div>
-                                            <p class="label-1">Sunset</p>
+                                            <p class="label-1">Закат солнца</p>
                                             <p class="title-1">${module.getTime(sunsetUnixUTC, timezone)}</p>
                                         </div>
                                     </div>
@@ -230,7 +231,7 @@ export const updateWeather = function (lat, lon) {
                             </div>
 
                             <div class="card card-sm highlight-card">
-                                <h3 class="title-3">Humidity</h3>
+                                <h3 class="title-3">Влажность</h3>
                                 <div class="wrapper">
                                     <span class="m-icon">humidity_percentage</span>
                                     <p class="title-1">${humidity}<sub>%</sub></p>
@@ -238,23 +239,23 @@ export const updateWeather = function (lat, lon) {
                             </div>
 
                             <div class="card card-sm highlight-card">
-                                <h3 class="title-3">Pressure</h3>
+                                <h3 class="title-3">Давление</h3>
                                 <div class="wrapper">
                                     <span class="m-icon">airwave</span>
-                                    <p class="title-1">${pressure}<sub>hPa</sub></p>
+                                    <p class="title-1">${pressure}<sub>мм</sub></p>
                                 </div>
                             </div>
 
                             <div class="card card-sm highlight-card">
-                                <h3 class="title-3">Visibility</h3>
+                                <h3 class="title-3">Видимость</h3>
                                 <div class="wrapper">
                                     <span class="m-icon">visibility</span>
-                                    <p class="title-1">${visibility / 1000}<sub>km</sub></p>
+                                    <p class="title-1">${visibility / 1000}<sub>км</sub></p>
                                 </div>
                             </div>
 
                             <div class="card card-sm highlight-card">
-                                <h3 class="title-3">Feels Like</h3>
+                                <h3 class="title-3">Ощущается</h3>
                                 <div class="wrapper">
                                     <span class="m-icon">thermostat</span>
                                     <p class="title-1">${parseInt(feels_like)}&deg;<sup>c</sup></p>
@@ -275,7 +276,7 @@ export const updateWeather = function (lat, lon) {
             } = forecast;
 
             hourlySection.innerHTML = `
-                <h2 class="title-2">Today at</h2>
+                <h2 class="title-2">Сегодня в</h2>
                     <div class="slider-container">
                         <ul class="slider-list" data-temp></ul>
 
@@ -283,8 +284,8 @@ export const updateWeather = function (lat, lon) {
                     </div>
             `;
 
-            for(const [index, data] of forecastList.entries()){
-                if(index > 7)break;
+            for (const [index, data] of forecastList.entries()) {
+                if (index > 7) break;
 
                 const {
                     dt: dateTimeUnix,
@@ -319,7 +320,7 @@ export const updateWeather = function (lat, lon) {
                         <img src="./assets/images/weather_icons/direction.png"
                         alt="direction" class="weather-icon"
                         width="48" height="48" title="" loading="lazy" style="transform: rotate(${windDirection - 180}deg)">
-                        <p class="body-3">${parseInt(module.mpsToKmh(windSpeed))} km/h</p>
+                        <p class="body-3">${parseInt(module.mpsToKmh(windSpeed))} км/ч</p>
                     </div>
                 `;
                 hourlySection.querySelector("[data-wind]").appendChild(windLi);
@@ -329,12 +330,12 @@ export const updateWeather = function (lat, lon) {
              * 5 DAY FORECAST SECTION
              */
             forecastSection.innerHTML = `
-                <h2 class="title-2" id="forecast-label">5 Days Forecast</h2>
+                <h2 class="title-2" id="forecast-label">Прогноз на 5 дней</h2>
                     <div class="card card-lg forecast-card">
                         <ul data-forecast-list></ul>
                     </div>
             `;
-            for(let i=7, len = forecastList.length; i<len; i+=8){
+            for (let i = 7, len = forecastList.length; i < len; i += 8) {
                 const {
                     main: {temp_max},
                     weather,
@@ -343,7 +344,7 @@ export const updateWeather = function (lat, lon) {
                 const [{icon, description}] = weather;
                 const date = new Date(dt_txt);
 
-                const  li = document.createElement("li");
+                const li = document.createElement("li");
                 li.classList.add("card-item");
 
                 li.innerHTML = `
@@ -374,4 +375,6 @@ export const updateWeather = function (lat, lon) {
 }
 
 export const  error404 =  () => errorContent.style.display = "flex";
+
+
 

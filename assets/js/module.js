@@ -8,27 +8,27 @@
 'use strict';
 
 export const weekDaysNames = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
+    "Воскресенье",
+    "Понедельник",
+    "Вторник",
+    "Среда",
+    "Четверг",
+    "Пятница",
+    "Суббота"
 ];
 export const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec"
+    "Янв",
+    "Фев",
+    "Мар",
+    "Апр",
+    "Май",
+    "Июнь",
+    "Июль",
+    "Авг",
+    "Сен",
+    "Окт",
+    "Нояб",
+    "Дек"
 ];
 /**
  *
@@ -54,22 +54,22 @@ export const getTime = function (timeUnix, timezone) {
     const date = new Date((timeUnix + timezone) * 1000);
     const hours = date.getUTCHours();
     const minutes = date.getUTCMinutes();
-    const period = hours >= 12 ? "PM" : "AM";
+    // const period = hours >= 12 ? "PM" : "AM";
 
-    return `${hours % 12 || 12}:${minutes} ${period}`;
+    return `${hours % 24 || 0}:${minutes}`;
 }
 
 /**
  * @param {number} timeUnix Unix date in seconds
  * @param {number} timezone Timezone shift from UTC in seconds
- * @returns {string} TIme String. format: "HH AM/PM"
+ * @returns {string} TIme String. format: "HH:MM AM/PM"
  */
 export const getHours = function (timeUnix, timezone) {
     const date = new Date((timeUnix + timezone) * 1000);
     const hours = date.getUTCHours();
-    const period = hours >= 12 ? "PM" : "AM";
+    // const period = hours >= 12 ? "PM" : "AM";
 
-    return `${hours % 12 || 12} ${period}`;
+    return `${hours % 24 + ":00" || 0+":00"}`;
 }
 
 /**
@@ -83,23 +83,23 @@ export const mpsToKmh = mps => {
 
 export const aqiText = {
     1: {
-        level: "Good",
-        message: "Air quality is considered satisfactory, and air pollution poses little or no risk"
+        level: "Хорошо",
+        message: "Качество воздуха считается удовлетворительным, а загрязнение воздуха практически не представляет опасности."
     },
     2: {
-        level: "Fair",
-        message: "Air quality is acceptable; however, for some pollutants there may be a moderate health concern for a very small number of people who are unusually sensitive to air pollution"
+        level: "Приемлемый",
+        message: "Качество воздуха приемлемое; тем не менее, некоторые загрязняющие вещества могут представлять умеренную опасность для здоровья очень небольшого числа людей, которые необычайно чувствительны к загрязнению воздуха."
     },
     3: {
-        level: "Moderate",
-        message: "Members of sensitive groups may experience health effects. The general public is not likely to be affected"
+        level: "Умеренный",
+        message: "Некоторые люди из чувствительных групп могут испытывать последствия для здоровья. Широкая общественность вряд ли пострадает"
     },
     4: {
-        level: "Poor",
-        message: "Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects"
+        level: "Плохой",
+        message: "Каждый может начать испытывать последствия для здоровья; члены чувствительных групп могут испытывать более серьезные последствия для здоровья"
     },
     5: {
-        level: "Very Poor",
-        message: "Health warnings of emergency conditions. The entire population is more likely to be effected"
+        level: "Очень плохой",
+        message: "Медицинские предупреждения о чрезвычайных ситуациях. Скорее всего, пострадает все население"
     }
 }
